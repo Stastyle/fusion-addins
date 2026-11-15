@@ -201,6 +201,7 @@ async function describe(repo) {
     description: override.description || manifestDesc || repo.description || '',
     version: override.version || release?.tag_name || manifest?.data?.version || null,
     released: Boolean(release),
+    releasedAt: release?.published_at || null,
     download: zipAsset?.browser_download_url ||
       (release
         ? `${repo.html_url}/archive/refs/tags/${encodeURIComponent(release.tag_name)}.zip`
@@ -239,7 +240,9 @@ function initials(name) {
 function card(a) {
   const meta = [
     a.version && `<span class="chip">v${esc(String(a.version).replace(/^v/i, ''))}</span>`,
-    `<span>Updated ${esc(fmtDate(a.updated))}</span>`,
+    a.releasedAt
+      ? `<span>Released ${esc(fmtDate(a.releasedAt))}</span>`
+      : `<span>Updated ${esc(fmtDate(a.updated))}</span>`,
     a.os.length && `<span>${esc(a.os.join(' · '))}</span>`,
     a.license && `<span>${esc(a.license)}</span>`,
     a.stars > 0 && `<span>★ ${a.stars}</span>`,
@@ -459,11 +462,18 @@ for (const repo of tagged) {
     continue;
   }
   if (!info.folder) console.warn(`! ${repo.name}: no Fusion .manifest found; listed anyway`);
-  console.log(`+ ${repo.name} -> "${info.name}" ${info.version ? `v${info.version}` : ''}`);
+  console.log(`+ ${repo.name} -> "${info.name}" ${info.version ? `v${String(info.version).replace(/^v/i, '')}` : ''}`);
   addins.push(info);
 }
 
-addins.sort((a, b) => (a.order ?? 1e9) - (b.order ?? 1e9) || b.updated.localeCompare(a.updated));
+// Pinned cards first, then my own add-ins before forks, newest release (or push) first.
+const newest = (a) => a.releasedAt || a.updated;
+addins.sort(
+  (a, b) =>
+    (a.order ?? 1e9) - (b.order ?? 1e9) ||
+    Number(Boolean(a.forkOf)) - Number(Boolean(b.forkOf)) ||
+    newest(b).localeCompare(newest(a)),
+);
 
 let untagged = [];
 if (SCAN_UNTAGGED && !ONLY.length) {

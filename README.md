@@ -63,7 +63,7 @@ Edit `overrides.json` in this repo, keyed by repository name:
 ```
 
 Every key is optional. Paths are inside the add-in repo. `order` pins cards to the front
-(lower first); everything else is sorted by most recent push. A repo can also carry the same
+(lower first); after those come my own add-ins, then forks, each newest release first. A repo can also carry the same
 keys in its own `fusion-addin.json` at the root; `overrides.json` wins.
 
 ## Private add-ins
