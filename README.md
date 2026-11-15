@@ -18,16 +18,17 @@ That's all. Removing the topic removes the card.
 Every add-in repo has a small `.github/workflows/release.yml` that calls the shared
 workflow in this repo (`.github/workflows/release-addin.yml`). To release:
 
-1. Bump `version` in the add-in's `.manifest` and add a `## <version>` section to `CHANGELOG.md`.
-2. Commit, then tag and push:
+1. Bump `version` in the add-in's `.manifest` and add a `## <version>` section to `CHANGELOG.md`, then commit.
+2. Either publish a release on GitHub (**Releases → Draft a new release**, type a new tag such as
+   `v1.4.0`, leave the title and notes empty, **Publish release**), or tag from a terminal:
    ```bash
    git tag v1.4.0
    git push origin v1.4.0
    ```
 
-The release is published within a minute or so: a zip that holds only the add-in folder
-(ready for Shift+S → **+**), with the CHANGELOG section as release notes, or the manifest
-description if there is no CHANGELOG. The page picks up the new version and download at its
+Within a minute or so the workflow attaches a zip that holds only the add-in folder (ready for
+Shift+S → **+**) and fills in the title and notes: the CHANGELOG section for that version, or
+the manifest description if there is no CHANGELOG. A title or notes you typed yourself are kept. The page picks up the new version and download at its
 next build. A new add-in repo only needs a copy of `release.yml`.
 
 ## Where each card's content comes from

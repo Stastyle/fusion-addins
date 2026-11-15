@@ -1,6 +1,7 @@
-# Reusable workflow: called from an add-in repo when a version tag (v*) is pushed.
-# Zips the add-in folder (the one holding the .manifest), takes the release notes from
-# CHANGELOG.md, and publishes the GitHub release. Re-running it updates the release in place.
+# Reusable workflow, called from an add-in repo when a version tag (v*) is pushed or a release
+# is published in GitHub's web page. Zips the add-in folder (the one holding the .manifest),
+# takes the release notes from CHANGELOG.md, and creates or completes the GitHub release.
+# Re-running it updates the release in place.
 name: Release a Fusion add-in
 
 on:
@@ -35,7 +36,11 @@ jobs:
           TITLE: ${{ steps.pack.outputs.title }}
         run: |
           if gh release view "$TAG" > /dev/null 2>&1; then
-            gh release edit "$TAG" --title "$TITLE" --notes-file release-notes.md
+            # The release was made in GitHub's web page: keep any title and notes typed there.
+            name=$(gh release view "$TAG" --json name --jq .name)
+            body=$(gh release view "$TAG" --json body --jq .body)
+            if [ -z "$name" ] || [ "$name" = "$TAG" ]; then gh release edit "$TAG" --title "$TITLE"; fi
+            if [ -z "$body" ]; then gh release edit "$TAG" --notes-file release-notes.md; fi
             gh release upload "$TAG" "$ZIP" --clobber
           else
             gh release create "$TAG" "$ZIP" --title "$TITLE" --notes-file release-notes.md --verify-tag
