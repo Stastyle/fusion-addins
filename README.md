@@ -13,6 +13,23 @@ push here) from all of my repositories tagged with the topic **`fusion-addin`**.
 
 That's all. Removing the topic removes the card.
 
+## Releasing a new version of an add-in
+
+Every add-in repo has a small `.github/workflows/release.yml` that calls the shared
+workflow in this repo (`.github/workflows/release-addin.yml`). To release:
+
+1. Bump `version` in the add-in's `.manifest` and add a `## <version>` section to `CHANGELOG.md`.
+2. Commit, then tag and push:
+   ```bash
+   git tag v1.4.0
+   git push origin v1.4.0
+   ```
+
+The release is published within a minute or so: a zip that holds only the add-in folder
+(ready for Shift+S → **+**), with the CHANGELOG section as release notes, or the manifest
+description if there is no CHANGELOG. The page picks up the new version and download at its
+next build. A new add-in repo only needs a copy of `release.yml`.
+
 ## Where each card's content comes from
 
 | On the card | Taken from (first one found) |
